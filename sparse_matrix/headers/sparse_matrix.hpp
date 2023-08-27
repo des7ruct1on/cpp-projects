@@ -14,21 +14,28 @@ class sparse_matrix {
     int columns;
     int rows;
     int size;
+    // binary search
     T search_elem(pair<int, int> elem) {
         if (size == 0) {
             throw runtime_error("Matrix is empty");
         }
-        int index = 0;
+        int left = 0;
+        int right = indexes.size() - 1;
+        int mid;
         bool found = false;
-        for (auto i = indexes.begin(); i != indexes.end(); ++i) {
-            if (*i == elem) {
+        while(left <= right) {
+            mid = (right + left) / 2;
+            if (indexes[mid].first == elem.first && indexes[mid].second == elem.second)  {
                 found = true;
                 break;
+            } else if (indexes[mid].first < elem.first) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
             }
-            index++;
         }
         if (found) {
-            return values[index];
+            return values[mid];
         } else {
             throw runtime_error("Element not found");
         }
@@ -117,6 +124,37 @@ public:
             }
         }
     }
+    // add values from matrix
+    void plus(sparse_matrix& A) {
+        int index_left = 0;
+        int index_right = 0;
+    
+        while (index_left < indexes.size() && index_right < A.indexes.size()) {
+            auto left = indexes[index_left];
+            auto right = A.indexes[index_right];
+
+            if (left.first == right.first && left.second == right.second) {
+                values[index_left] += A.values[index_right];
+                index_left++;
+                index_right++;
+            } else if (left.first < right.first || (left.first == right.first && left.second < right.second)) {
+                index_left++;
+            } else if (left.first > right.first || (left.first == right.first && left.second > right.second)) {
+                values.insert(values.begin() + index_left, A.values[index_right]);
+                indexes.insert(indexes.begin() + index_left, right);
+                index_left++;
+                index_right++;
+            }
+        }
+
+        while (index_right < A.indexes.size()) {
+            values.push_back(A.values[index_right]);
+            indexes.push_back(A.indexes[index_right]);
+            index_right++;
+        }
+    }
+
+
     // destructor
     ~sparse_matrix() = default;
 
