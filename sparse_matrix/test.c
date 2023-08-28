@@ -27,8 +27,9 @@ int main() {
     A.print();
     cout << endl;
     B.print();
-    sparse_matrix<double> C(5, 5);
-    C = A + B;
+    A.plus(B);
+    sparse_matrix<double> C(A);
+    
     cout << endl;
     C.print();
 
