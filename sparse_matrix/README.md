@@ -1,11 +1,12 @@
 # sparse matrix
-In this programm i realize a sparse matrix class on c++ lang \
+In this programm i realize a sparse matrix class on c++ lang 
 > private 
 >- vector values - vector of not-null elements values
 >- vector indexes - vector of not-null elements indexes
 >- _columns - amount of columns
 >- _rows - amount of rows
 >- T search_elem - linear function of finding selected element
+
 > public 
 >- sparse_matrix(int size_col, int size_row) - constructor
 >- sparse_matrix(const sparse_matrix & A) - copy-constructor
