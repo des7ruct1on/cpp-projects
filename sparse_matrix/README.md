@@ -1,5 +1,5 @@
 # sparse matrix
-In this programm i realize a sparse matrix class on c++ lang 
+In this programm i have implemented sparse matrix class on c++ lang 
 > `private`
 >- vector values - vector of not-null elements values
 >- vector indexes - vector of not-null elements indexes
