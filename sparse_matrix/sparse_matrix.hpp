@@ -14,31 +14,14 @@ class sparse_matrix {
     int _columns;
     int _rows;
     int _size;
-    // binary search
+    // linear search
     T search_elem(pair<int, int> elem) {
-        if (_size == 0) {
-            throw runtime_error("Matrix is empty");
-        }
-        int left = 0;
-        int right = indexes.size() - 1;
-        int mid;
-        bool found = false;
-        while(left <= right) {
-            mid = (right + left) / 2;
-            if (indexes[mid].first == elem.first && indexes[mid].second == elem.second)  {
-                found = true;
-                break;
-            } else if (indexes[mid].first < elem.first) {
-                left = mid + 1;
-            } else {
-                right = mid - 1;
+        for (size_t i = 0; i < indexes.size(); ++i) {
+            if (indexes[i].first == elem.first && indexes[i].second == elem.second) {
+                return values[i];
             }
         }
-        if (found) {
-            return values[mid];
-        } else {
-            throw runtime_error("Element not found");
-        }
+        throw runtime_error("Element not found");
     }
 public:
     // constructor
@@ -107,8 +90,9 @@ public:
     }
     // addition
     void add(T val, int i, int j) {
+        auto pr = make_pair(i, j);
         values.push_back(val);
-        indexes.push_back(make_pair(i, j));
+        indexes.push_back(pr);
     }
     // removing element
     void remove_value(T val) {
@@ -144,7 +128,7 @@ public:
             } else if (left.first > right.first || (left.first == right.first && left.second > right.second)) {
                 values.insert(values.begin() + index_left, A.values[index_right]);
                 indexes.insert(indexes.begin() + index_left, right);
-                index_left++;
+                //index_left++;
                 index_right++;
             }
         }
@@ -185,6 +169,93 @@ public:
             indexes.push_back(A.indexes[index_right]);
             index_right++;
         }
+    }
+    // multiply functions
+    void multiply(const sparse_matrix & A) {
+        if (_columns != A._rows) {
+            throw runtime_error("Can`t be solved!");
+        }
+
+        vector<T> _values;
+        vector<pair<int, int> > _indexes;
+        // res size
+        int size_col_res = A._columns;
+        int size_row_res = _rows;
+
+        int need_col = 0;
+        int need_row = 0;
+
+        int i = 0;
+
+        bool _next = false;
+
+        while (true) {
+            if (i == values.size() && need_col == A._columns) {
+                break;
+            }
+
+            if (need_col == A._columns) {
+                need_col = 0;
+                need_row++;
+                i = 0;
+            }
+
+            if (_next) {
+                i = 0;
+                _next = false;
+            }
+
+            int _val1 = values[i];
+            int _row1 = indexes[i].first;
+            int _col1 = indexes[i].second;
+
+            if (_row1 != need_row) {
+                i++;
+                continue;
+            }
+
+            int _val2, _row2, _col2, _res_col;
+
+            static int mult = 0;
+            
+            int _size = A.values.size();
+            for (int j = 0; j < _size; j++) {
+                _val2 = A.values[j];
+                _row2 = A.indexes[j].first;
+                _col2 = A.indexes[j].second;
+
+                if (_col2 == need_col && _col1 == _row2) {
+                    mult += _val1 * _val2;
+                    _res_col = _col2;
+                    break;
+                }
+            }
+
+            int tmp_row = indexes[i + 1].first;
+
+            if (tmp_row != _row1 || i == values.size() - 1) {
+                if (mult != 0) {
+                    auto pr = make_pair(_row1, _res_col);
+                    _values.push_back(mult);
+                    _indexes.push_back(pr);
+                }
+
+                need_col++;
+                _next = true;
+                mult = 0;
+            }
+            i++;
+        }
+
+        values.clear();
+        indexes.clear();
+        values = _values;
+        indexes = _indexes;
+        _columns = size_col_res;
+        _rows = size_row_res;
+        _size = _columns * _rows;
+
+        
     }
     // operator +
     sparse_matrix& operator+(const sparse_matrix & A) {
@@ -248,6 +319,93 @@ public:
             indexes.push_back(A.indexes[index_right]);
             index_right++;
         }
+        return *this;
+    }
+    // operator *
+    sparse_matrix& operator*(const sparse_matrix & A) {
+        if (_columns != A._rows) {
+            throw runtime_error("Can`t be solved!");
+        }
+
+        vector<T> _values;
+        vector<pair<int, int> > _indexes;
+        // res size
+        int size_col_res = A._columns;
+        int size_row_res = _rows;
+
+        int need_col = 0;
+        int need_row = 0;
+
+        int i = 0;
+
+        bool _next = false;
+
+        while (true) {
+            if (i == values.size() && need_col == A._columns) {
+                break;
+            }
+
+            if (need_col == A._columns) {
+                need_col = 0;
+                need_row++;
+                i = 0;
+            }
+
+            if (_next) {
+                i = 0;
+                _next = false;
+            }
+
+            int _val1 = values[i];
+            int _row1 = indexes[i].first;
+            int _col1 = indexes[i].second;
+
+            if (_row1 != need_row) {
+                i++;
+                continue;
+            }
+
+            int _val2, _row2, _col2, _res_col;
+
+            static int mult = 0;
+            
+            int _size = A.values.size();
+            for (int j = 0; j < _size; j++) {
+                _val2 = A.values[j];
+                _row2 = A.indexes[j].first;
+                _col2 = A.indexes[j].second;
+
+                if (_col2 == need_col && _col1 == _row2) {
+                    mult += _val1 * _val2;
+                    _res_col = _col2;
+                    break;
+                }
+            }
+
+            int tmp_row = indexes[i + 1].first;
+
+            if (tmp_row != _row1 || i == values.size() - 1) {
+                if (mult != 0) {
+                    auto pr = make_pair(_row1, _res_col);
+                    _values.push_back(mult);
+                    _indexes.push_back(pr);
+                }
+
+                need_col++;
+                _next = true;
+                mult = 0;
+            }
+            i++;
+        }
+
+        values.clear();
+        indexes.clear();
+        values = _values;
+        indexes = _indexes;
+        _columns = size_col_res;
+        _rows = size_row_res;
+        _size = _columns * _rows;
+
         return *this;
     }
 

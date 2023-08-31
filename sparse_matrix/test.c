@@ -10,26 +10,23 @@
 
 using namespace std;
 int main() {
-    sparse_matrix<double> A(5, 5);
-    sparse_matrix<double> B(5, 5);
+    sparse_matrix<double> A(1, 3);
+    sparse_matrix<double> B(3, 1);
     A.add(1, 0, 0);
-    A.add(2, 1, 1);
-    A.add(3, 2, 2);
-    A.add(4, 3, 3);
-    A.add(5, 4, 4);
+    A.add(7, 1, 0);
+    A.add(4, 2, 0);
 
-    B.add(1, 0, 1);
-    B.add(2, 1, 2);
-    B.add(4, 2, 2);
-    B.add(3, 3, 1);
+    B.add(1, 0, 0);
+    B.add(7, 0, 1);
+    B.add(4, 0, 2);
+    
     //B.add(4, 2, 2);
 
     A.print();
     cout << endl;
     B.print();
-    A.plus(B);
-    sparse_matrix<double> C(A);
-    
+    B.multiply(A);
+    sparse_matrix<double> C(B);
     cout << endl;
     C.print();
 
